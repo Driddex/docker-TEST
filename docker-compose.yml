@@ -1,0 +1,19 @@
+version: "3.8"
+
+services:
+  back_web:
+    container_name: web_core
+    build: ./api
+    restart: always
+    ports:
+      - "8000:8000"
+    
+  client:
+    container_name: client_core
+    build: ./frontend
+    ports:
+      - "3000:3000" 
+    environment:
+      - BASE_URI=http://back_web:8000
+    depends_on:
+      - back_web
