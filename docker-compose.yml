@@ -1,12 +1,28 @@
 version: "3.8"
 
 services:
+  db:
+    image: postgres:16-alpine
+    container_name: postgres_db
+    environment:
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "0208_password"
+      POSTGRES_DB: "news_db"
+    ports:
+      - "8120:5432"
+    volumes:
+      - pg_news_data:/var/lib/postgresql/data
+
   back_web:
     container_name: web_core
     build: ./api
     restart: always
     ports:
       - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://postgres:0208_password@db:5432/news_db
+    depends_on:
+      - db
     
   client:
     container_name: client_core
@@ -17,3 +33,6 @@ services:
       - BASE_URI=http://back_web:8000
     depends_on:
       - back_web
+
+volumes:
+  pg_news_data:
