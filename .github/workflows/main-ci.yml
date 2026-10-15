@@ -1,21 +1,17 @@
-name: git-auto
+name: checker
 
-on:
-  push:
-    branches: [ 'main' ]
-
+on: push
 jobs:
-  check-project:
+  lint:
     runs-on: ubuntu-latest
-    
     steps:
-      - name: Dowload code
+      - name: checker
         uses: actions/checkout@v4
-
       - name: Install Python 3.11
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+        
+      - name: scan-for-error
+        run: python -m compileall
 
-      - name: Scan Code For Errors
-        run: python -m compileall .
