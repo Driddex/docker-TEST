@@ -30,7 +30,7 @@ def get_db():
 @app_core.post('/p')
 async def post(data: data_users, db: Session = Depends(get_db)):
     db_data = create_user(id=data.id)
-
+    
     try:
         db.add(db_data)
         db.commit()
