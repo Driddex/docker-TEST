@@ -1,9 +1,48 @@
-version: "3.8"
-
 services:
+  nginx:
+    image: nginx:1.25-alpine
+    container_name: nginx_proxy
+    restart: always
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - back_web_1
+      - back_web_2
+
+  back_web_1:
+    container_name: web_core_1
+    build: ./api
+    restart: always
+    environment:
+      - DATABASE_URL=postgresql://postgres:0208_password@db:5432/news_db
+    depends_on:
+      - db
+
+  back_web_2:
+    container_name: web_core_2
+    build: ./api
+    restart: always
+    environment:
+      - DATABASE_URL=postgresql://postgres:0208_password@db:5432/news_db
+    depends_on:
+      - db
+  
+  client:
+    container_name: client_core
+    build: ./frontend
+    ports:
+      - "3000:3000" 
+    environment:
+      - BASE_URI=http://nginx:80
+    depends_on:
+      - nginx
+
   db:
     image: postgres:16-alpine
     container_name: postgres_db
+    restart: always
     environment:
       POSTGRES_USER: "postgres"
       POSTGRES_PASSWORD: "0208_password"
@@ -12,27 +51,6 @@ services:
       - "8120:5432"
     volumes:
       - pg_news_data:/var/lib/postgresql/data
-
-  back_web:
-    container_name: web_core
-    build: ./api
-    restart: always
-    ports:
-      - "8000:8000"
-    environment:
-      - DATABASE_URL=postgresql://postgres:0208_password@db:5432/news_db
-    depends_on:
-      - db
-    
-  client:
-    container_name: client_core
-    build: ./frontend
-    ports:
-      - "3000:3000" 
-    environment:
-      - BASE_URI=http://back_web:8000
-    depends_on:
-      - back_web
 
 volumes:
   pg_news_data:
