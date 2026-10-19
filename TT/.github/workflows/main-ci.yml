@@ -1,0 +1,11 @@
+name: checker
+on: push
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: dw code
+        uses: actions/checkout@v4
+      # - name: debuger
+        
