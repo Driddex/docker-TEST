@@ -21,9 +21,7 @@ class cc_users(Base):
     __tablename__ = "users"
     id = Column(Integer, nullable=False, primary_key=True)
 
-
 Base.metadata.create_all(bind=engine)
-
 app = FastAPI()
 
 app.add_middleware(
@@ -46,6 +44,10 @@ def get_db():
 
 @app.post("/p")
 async def create_user(data: Item, db: Session = Depends(get_db)):
+    find_user = db.query(cc_users).filter(cc_users.id == data.id).first()
+
+    if find_user: return {"status" : "error", "message" : f"User with id: {data.id} already exists"}
+    
     new_user = cc_users(id=data.id)
     try:
         db.add(new_user)
@@ -59,6 +61,7 @@ async def create_user(data: Item, db: Session = Depends(get_db)):
 @app.delete("/d")
 async def del_user(data: Item, db: Session = Depends(get_db)):
     find_user = db.query(cc_users).filter(cc_users.id == data.id).first()
+
     if not find_user:
         return {"status": "error", "message": "User not found"}
     try:
